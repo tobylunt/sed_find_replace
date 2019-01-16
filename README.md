@@ -14,6 +14,6 @@ This is under development and is currently not executable. Ultimately you will d
 
 Options will include:
 
-*`-a`: Accept all changes (output for each line's replacement will still be printed). Default is to prompt the user to accept or reject each change.
-*`-r`: Desired depth of recursion into subfolders. E.g. `-r 1` will search pwd and one level of subfolders. `-r` give full recursion. Default is no recursion.
+* `-a`: Accept all changes (output for each line's replacement will still be printed). Default is to prompt the user to accept or reject each change.
+* `-r`: Desired depth of recursion into subfolders. E.g. `-r 1` will search pwd and one level of subfolders. `-r` give full recursion. Default is no recursion.
 
