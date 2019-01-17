@@ -16,6 +16,8 @@ This is under development and is currently not executable. Ultimately you will d
 
 Options will include:
 
-* `-a`: Accept all changes (output for each line's replacement will still be printed). Default is to prompt the user to accept or reject each change.
-* `-r`: Desired depth of recursion into subfolders. E.g. `-r 1` will search pwd and one level of subfolders. `-r` give full recursion. Default is no recursion.
-
+* `--accept-all`: Accept all changes (output for each line's replacement will still be printed). Default is to prompt the user to accept or reject each change.
+* `--recurse`: Desired depth of recursion into subfolders. E.g. `-r=1` will search pwd and one level of subfolders. `-r` give full recursion. Default is no recursion.
+* `--target`: Define file extensions for the script to consider, e.g. `--target=".py .sh"`
+* `--filelist`: Specify an external .txt file with all target files individually specified by file/filepaths on their own line. E.g. `--filelist="~/Desktop/infiles.txt"`
+* `--exclude-dir`: Specify a directory to exclude, e.g. `--exclude-dir=.svn`
