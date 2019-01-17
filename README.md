@@ -1,5 +1,7 @@
 # Find and replace utility
 
+This utility finds an input string and replaces it with a new string within all text files of the current directory, and any levels of subdirectories as specified. It shows you the original and replacement of each line with a change.
+
 Have you ever had to modify a large codebase when you realized you had a poorly named dataset or variable mucking up your life? Have you dreaded breaking things you haven't touched in months by ripping through your code with `sed`?
 
 Even under version control, large-scale find and replace can be a pain in the butt and a little nerve-wracking. This little utility helps the process by highlighting each individual *complete* line change, so you can visually confirm that your replacement code doesn't have unintended consequences.
