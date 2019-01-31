@@ -11,10 +11,10 @@
 
 # define input syntax for help message
 usage() {
-  echo "Usage: [ -r DEPTH ] [ -x EXTENSIONS ] find replace" 1>&2 
+  echo "Usage: [ -d MAXDEPTH ] [ -x EXTENSIONS ]  [ -a ACCEPT_ALL ] find replace" 1>&2 
 }
 
-# check for missing options
+# check for missing arguments
 if [ $# -eq 0 ]
 then
         echo "Missing options!"
@@ -28,18 +28,27 @@ fi
 # Read options #
 ################
 
-# https://stackoverflow.com/questions/14513305/how-to-write-unix-shell-scripts-with-options
+# initialize our variables as missing
+DEPTH=
+FTYPES=
+ACCEPT=false
+
 # https://www.computerhope.com/unix/bash/getopts.htm
-while getopts ":x:r:" options; do 
+# add the options to variables with getopts. note that option a does not get any arguments.
+while getopts ":x:d:a" options; do 
     case $options in
-        r)
+        d)
 	    DEPTH=${OPTARG}
 	    ;;
 	x)
 	    FTYPES=${OPTARG}
 	    ;;
+	a)
+	    ACCEPT=true
+	    ;;
     esac
 done
+
 
 # shift the remaining non-option arguments (the find and replace strings)
 shift $(($OPTIND - 1))
@@ -53,68 +62,104 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
+# configure depth if the option is not missing
+if [ -n "$DEPTH" ]; then
 
+    # Check for insufficient depth argument
+    if (( $DEPTH < 1 )); then
+        echo "Recursion depth must be > 0"
+        usage
+        exit 1
+    fi
 
+    # set the sed option
+    DEPTH=" -maxdepth $DEPTH "
+fi
 
+# configure filetypes if the option is not missing
+if [ -n "$FTYPES" ]; then
 
+    # scrub any stars, dots, or slashes
+    FTYPES=${FTYPES//.}
+    FTYPES=${FTYPES//\*}
 
-
-
-#TEMP=`getopt -o vdm: --long verbose,debug,memory:,debugfile:,minheap:,maxheap: \
-#             -n 'javawrap' -- "$@"`
-#
-#if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
-#
-## Note the quotes around `$TEMP': they are essential!
-#eval set -- "$TEMP"
-#
-#VERBOSE=false
-#DEBUG=false
-#MEMORY=
-#DEBUGFILE=
-#JAVA_MISC_OPT=
-#while true; do
-#  case "$1" in
-#    -v | --verbose ) VERBOSE=true; shift ;;
-#    -d | --debug ) DEBUG=true; shift ;;
-#    -m | --memory ) MEMORY="$2"; shift 2 ;;
-#    --debugfile ) DEBUGFILE="$2"; shift 2 ;;
-#    --minheap )
-#      JAVA_MISC_OPT="$JAVA_MISC_OPT -XX:MinHeapFreeRatio=$2"; shift 2 ;;
-#    --maxheap )
-#      JAVA_MISC_OPT="$JAVA_MISC_OPT -XX:MaxHeapFreeRatio=$2"; shift 2 ;;
-#    -- ) shift; break ;;
-#    * ) break ;;
-#  esac
-#done
+    # adjust the cleaned extensions to match grep syntax
+    FTYPES=--include=\*.${FTYPES// / --include=\*.}
+fi
 
 
 
 #################
 ## Find-replace #
 #################
-#
-## record the in/out strings
-#echo old string: $1
-#echo new string: $2
-#
-## grep
-#grep -rl $1 . --include \*.do | while read -r line ; do
-#	printf "\n"
-#	printf "Working on file:\n"
-#	echo $line
-#	sed -i "/$1/{
-#        h
-#        s//$2/g
-#        H
-#        x
-#        s/\n/ >>> /
-#        w /dev/fd/2
-#        x
-#        }" "$line"
-#    done
-#}
-#
+
+# record the in/out strings
+echo old string: $1
+echo new string: $2
+
+# begin the f/r command. find filenames to the correct depth, and grep
+# for the input string matching the correct file extensions
+find . -type f $DEPTH -exec grep -l $FTYPES -e $1 {} + | while read -r line ; do
+
+    # strip leading './' from find output
+    line=${line#.\/}
+    
+    # print out the file being considered
+    printf "\n\n###################################################\n"
+    printf "Working on file: $line"
+    printf "\n###################################################\n\n"
+
+    # check if we've got the 'accept-all' option. this won't spit out
+    # a request for approval.
+    if [ "$ACCEPT" = false ] ; then
+
+	# run the sed command without making any changes to disk, for
+	# the user to preview what will happen. -n suppresses doubled
+	# output from the sed pattern space
+        sed -n "/$1/{
+            h 
+            s//$2/g 
+            H 
+            x 
+            s/\n/ >>> / 
+            w /dev/fd/2
+            }" "$line"
+	
+	# check if the user wants to execute this command. note that
+	# the read command requires a separate source from the above
+	# read running the while loop, so we use the controlling
+	# terminal /dev/tty
+	read -p "Do you wish to make this replacement?" yn </dev/tty
+	case $yn in
+	    [Yy]* )
+
+		# if yes, run a quiet sed inplace
+		sed -i '' "s/$1/$2/g" "$line"
+		;;
+
+	    # if not, continue to the next line
+	    [Nn]* ) continue;;
+
+	    # catch incorrect entries
+	    * ) echo "Please answer yes or no.";;
+	esac
+    elif [ "$ACCEPT" = true ] ; then
+
+        # if the user doesn't want previews, execute all the inplace
+        # sed commands. "i ''" ensures this works on MacOS
+        sed -i '' "/$1/{
+            h
+            s//$2/g
+            H
+            x
+            s/\n/ >>> /
+            w /dev/fd/2
+            x
+            }" "$line"
+    fi
+done
+
+
 ## a version that enters a trailing space
 #pcec_sed_trailspace () {
 #    echo old string: $1
@@ -134,38 +179,8 @@ fi
 #        }" "$line"
 #    done
 #}
-#
-## a version that fixes tex files
-#pcec_sed_tex () {
-#    echo old string: $1
-#    echo new string: $2
-#    grep -rl $1 . --include \*.tex | while read -r line ; do
-#	printf "\n"
-#	printf "Working on file:\n"
-#	echo $line
-#	sed -i "/$1/{
-#        h
-#        s//$2/g
-#        H
-#        x
-#        s/\n/ >>> /
-#        w /dev/fd/2
-#        x
-#        }" "$line"
-#    done
-#}
-#
-#
-#
-###################
-## Work out the CLI
-###################
-#
-##
-#read var1
-#
-#
-#
+
+
 #####################
 ## deployment example
 #####################
