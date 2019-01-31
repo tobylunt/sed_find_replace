@@ -1,6 +1,6 @@
 # Find and replace utility
 
-![Find-replace](https://github.com/tobylunt/sed_find_replace/raw/master/map/static/fr_example.gif "tutorial")
+![Find-replace](https://github.com/tobylunt/sed_find_replace/raw/master/fr_example.gif "tutorial")
 
 This utility finds an input string and replaces it with a new string within all text files of the current directory, and any levels of subdirectories as specified. It shows you the original and replacement of each line with a change.
 
