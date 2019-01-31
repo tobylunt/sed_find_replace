@@ -1,5 +1,7 @@
 # Find and replace utility
 
+![Find-replace](https://github.com/tobylunt/sed_find_replace/raw/master/map/static/fr_example.gif "tutorial")
+
 This utility finds an input string and replaces it with a new string within all text files of the current directory, and any levels of subdirectories as specified. It shows you the original and replacement of each line with a change.
 
 Have you ever had to modify a large codebase when you realized you had a poorly named dataset or variable mucking up your life? Have you dreaded breaking things you haven't touched in months by ripping through your code with `sed`?
