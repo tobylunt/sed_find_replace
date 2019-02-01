@@ -1,4 +1,4 @@
-# Find and replace utility
+# Find and replace utility v1.0
 
 ![Find-replace](https://github.com/tobylunt/sed_find_replace/raw/master/fr_example.gif "tutorial")
 
@@ -14,12 +14,14 @@ The backbone of the utility is the extraordinarily powerful `GNU sed`. Thanks. T
 
 ## How to use
 
-Download the sed_find_replace.sh and add it to your path.
+Download the sed_find_replace.sh and add it to your path. You may need to `chmod +x` to ensure it is executable. This was originally developed on RHEL but finalized on MacOX, so it should work on both.
+
+```Usage: [ -d MAXDEPTH ] [ -x EXTENSIONS ]  [ -a ACCEPT_ALL ] [ -r RECURSE_FULL ] find_string replace_string```
 
 Options:
 
 * `-d`: Maximum depth of recursion into subfolders. E.g. `-d=1` will only search within the current directory. Default is no recursion.
-* `-r`: Full recursion.
+* `-r`: Full recursion through all subdirectories.
 * `-a`: Accept all changes without prompt (output for each line's replacement will still be printed). Default is to prompt the user to accept or reject each change.
 * `-x`: Define file extensions for the script to consider, e.g. `-x ".py .sh"`, `-x "*.py *.sh"`, or `-x "py sh"`
 
