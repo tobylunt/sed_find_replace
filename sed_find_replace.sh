@@ -11,7 +11,7 @@
 
 # define input syntax for help message
 usage() {
-  echo "Usage: [ -d MAXDEPTH ] [ -x EXTENSIONS ]  [ -a ACCEPT_ALL ] find replace" 1>&2 
+  echo "Usage: [ -d MAXDEPTH ] [ -x EXTENSIONS ]  [ -a ACCEPT_ALL ] [ -r RECURSE_FULL ] find replace" 1>&2 
 }
 
 # check for missing arguments
@@ -32,10 +32,11 @@ fi
 DEPTH=
 FTYPES=
 ACCEPT=false
+RECURSE=false
 
 # https://www.computerhope.com/unix/bash/getopts.htm
-# add the options to variables with getopts. note that option a does not get any arguments.
-while getopts ":x:d:a" options; do 
+# add the options to variables with getopts. note that options r and a do not get any arguments.
+while getopts ":x:d:ra" options; do 
     case $options in
         d)
 	    DEPTH=${OPTARG}
@@ -45,6 +46,9 @@ while getopts ":x:d:a" options; do
 	    ;;
 	a)
 	    ACCEPT=true
+	    ;;
+	r)
+	    RECURSE=true
 	    ;;
     esac
 done
@@ -65,6 +69,13 @@ fi
 # configure depth if the option is not missing
 if [ -n "$DEPTH" ]; then
 
+    # check if -r option also specified - can't have full recursion and maxdepth limit
+    if [ "$RECURSE" = true ] ; then
+        echo "full recursion (-r) and max depth (-d) cannot be jointly specified"
+        usage
+        exit 1
+    fi
+	
     # Check for insufficient depth argument
     if (( $DEPTH < 1 )); then
         echo "Recursion depth must be > 0"
@@ -74,6 +85,12 @@ if [ -n "$DEPTH" ]; then
 
     # set the sed option
     DEPTH=" -maxdepth $DEPTH "
+else
+    # set default as no recursion. if recurse is true, DEPTH will be
+    # empty which will give us full recursion.
+    if [ "$RECURSE" = false ] ; then
+	DEPTH=" -maxdepth 0 "
+    fi
 fi
 
 # configure filetypes if the option is not missing
