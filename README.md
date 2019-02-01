@@ -40,22 +40,8 @@ Potential future options:
 
 You could check out [FAR](http://findandreplace.sourceforge.net/) (for "find and replace"). Seems great! Not a command line utility though. I actually haven't used it.
 
-There are other GUI options out there as well. My favorite is probably the cleverly named [FART](http://fart-it.sourceforge.net/).
+There are other GUI options out there as well. My favorite is probably the [FART](http://fart-it.sourceforge.net/) utility, for obvious reasons.
 
 ## Acknowledgements
 
 I wrote the first draft of these functions while working for [Sam Asher](https://samuelasher.com/) and [Paul Novosad](https://www.dartmouth.edu/~novosad/), who were gracious enough to encourage me to continue to develop it into a utility and make it open source. Thanks a ton.
-
-
-
-
-
-
-for each pc01 town above a pop threshold (e.g. 10k) or flagged as a town:
-- this pc01 town substantially overlaps multiple constituencies - drop shrid, and flag those constituencies to be dropped at the end (do we want a pop percentage?) get pop totals by pieces.
-- this pc01 town matches the exact constituency. need to get matching constituency number/name, and pop.
-
-clean out addititional info out of the name, but put it in a new field
-strip out G.Ps and C.D. blocks and see what you have left
-watch out for OGs, MC, CT
-start with full list of bihar census towns, rather than everythign over 10k or whatever. take 2001 urban PCA and match from there.
