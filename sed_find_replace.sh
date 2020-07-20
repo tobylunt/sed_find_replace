@@ -89,7 +89,7 @@ else
     # set default as no recursion. if recurse is true, DEPTH will be
     # empty which will give us full recursion.
     if [ "$RECURSE" = false ] ; then
-	DEPTH=" -maxdepth 0 "
+	DEPTH=" -maxdepth 1 "
     fi
 fi
 
@@ -114,9 +114,17 @@ fi
 echo old string: $1
 echo new string: $2
 
+# check for macos. this is for the sed i option - "i ''" ensures this
+# works on MacOS and unix, working around a platform dependency
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  IOPT=" ''"
+else
+  IOPT=""
+fi
+
 # begin the f/r command. find filenames to the correct depth, and grep
 # for the input string matching the correct file extensions
-find . -type f $DEPTH -exec grep -l $FTYPES -e $1 {} + | while read -r line ; do
+find . $DEPTH -type f -exec grep -l $FTYPES -e $1 {} + | while read -r line ; do
 
     # strip leading './' from find output
     line=${line#.\/}
@@ -151,7 +159,7 @@ find . -type f $DEPTH -exec grep -l $FTYPES -e $1 {} + | while read -r line ; do
 	    [Yy]* )
 
 		# if yes, run a quiet sed inplace
-		sed -i '' "s/$1/$2/g" "$line"
+		sed -i $IOPT "s/$1/$2/g" "$line"
 		;;
 
 	    # if not, continue to the next line
@@ -163,8 +171,8 @@ find . -type f $DEPTH -exec grep -l $FTYPES -e $1 {} + | while read -r line ; do
     elif [ "$ACCEPT" = true ] ; then
 
         # if the user doesn't want previews, execute all the inplace
-        # sed commands. "i ''" ensures this works on MacOS
-        sed -i '' "/$1/{
+        # sed commands. 
+        sed -i $IOPT "/$1/{
             h
             s//$2/g
             H
